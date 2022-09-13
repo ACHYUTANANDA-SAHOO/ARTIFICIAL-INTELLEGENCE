@@ -23,4 +23,4 @@ DAY 3 LAB :
 12. Write the python program for Tic Tac Toe game. --- || <br />
 13. Write the python program to implement Minimax algorithm for gaming --- Uploaded || <br />
 14. Write the python program to implement Apha & Beta pruning algorithm --- Uploaded || <br />
-15. gaming Write the python program to implement Decision Tree --- || <br />
+15. Write the python program to implement Decision Tree --- || <br />
