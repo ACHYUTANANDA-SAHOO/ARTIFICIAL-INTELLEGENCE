@@ -1,16 +1,7 @@
-/Simple disease/
-domains
-disease,indication,name = symbol
-
-predicates
-    hypothesis(name,disease)
-    symptom(name,indication)
-
-clauses
     symptom(amit,fever).
     symptom(amit,rash).
     symptom(amit,headache).
-    symptom(amit,runn_nose).
+    symptom(amit,runny_nose).
 
     symptom(kaushal,chills).
     symptom(kaushal,fever).
