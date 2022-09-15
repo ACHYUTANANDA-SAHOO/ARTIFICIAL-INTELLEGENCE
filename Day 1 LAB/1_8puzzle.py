@@ -1,114 +1,150 @@
+#Print the puzzle states in matrix format
+def print_in_format(matrix):
+    for i in range(9):
+        #print a new line in after every 3 tiles are printed
+        if i%3 == 0 and i > 0:
+            print("")
+        
+        #Print the tile
+        print(str(matrix[i])+" ", end = "")
 
-class Node:
-    def __init__(self, data, level, fval):
-        # Initialize the node with the data ,level of the node and the calculated fvalue
-        self.data = data
-        self.level = level
-        self.fval = fval
-
-    def generate_child(self):
-        # Generate hild nodes from the given node by moving the blank space
-        # either in the four direction {up,down,left,right}
-        x, y = self.find(self.data, '_')
-        # val_list contains position values for moving the blank space in either of
-        # the 4 direction [up,down,left,right] respectively.
-        val_list = [[x, y - 1], [x, y + 1], [x - 1, y], [x + 1, y]]
-        children = [] 
-        for i in val_list:
-            child = self.shuffle(self.data, x, y, i[0], i[1])
-            if child is not None:
-                child_node = Node(child, self.level + 1, 0)
-                children.append(child_node)
-        return children
-
-    def shuffle(self, puz, x1, y1, x2, y2):
-        # Move the blank space in the given direction and if the position value are out
-        # of limits the return None
-        if x2 >= 0 and x2 < len(self.data) and y2 >= 0 and y2 < len(self.data):
-            temp_puz = []
-            temp_puz = self.copy(puz)
-            temp = temp_puz[x2][y2]
-            temp_puz[x2][y2] = temp_puz[x1][y1]
-            temp_puz[x1][y1] = temp
-            return temp_puz
-        else:
-            return None
-
-    def copy(self, root):
-        # copy function to create a similar matrix of the given node
-        temp = []
-        for i in root:
-            t = []
-            for j in i:
-                t.append(j)
-            temp.append(t)
-        return temp
-
-    def find(self, puz, x):
-        # Specifically used to find the position of the blank space
-        for i in range(0, len(self.data)):
-            for j in range(0, len(self.data)):
-                if puz[i][j] == x:
-                    return i, j
+#Counts the heuristic value for a state of the 8 puzzle
+def count(s):
+    #heuristic value counting variable
+    c = 0
+    
+    #Solved state of a 8 puzzle
+    ideal = [1, 2, 3,
+             4, 5, 6,
+             7, 8, 0]
+    
+    #Loop that iterates through all the tiles of unsolved puzzle and compares them with
+    #the solved one's. if they don't match, then increase the heuristic value count by 1
+    for i in range(9):
+        if s[i] != 0 and s[i] != ideal[i]:
+            c += 1
+            
+    #return the counted heuristic value    
+    return c
 
 
-class Puzzle:
-    def __init__(self, size):
-        # Initialize the puzzle size by the the specified size,open and closed lists to empty
-        self.n = size
-        self.open = []
-        self.closed = []
+#The movement function that moves the blank tile to possible positions
+#and compares the moved states for the minimum heuristic valued state
+def move(ar, p, st):
+    
+    #variable that stores minimum heuristic value of a moved state
+    rh = 999999
+    
+    #Copy the puzzle state to another list variable to be used in here
+    store_st = st.copy()
+    
+    #Loop that makes moves of blank tiles to all possible positions
+    for i in range(len(ar)):
+        
+        #Copying the current puzzle state to another list variable to be
+        #used in the swapping blank tile operation
+        dupl_st = st.copy()
+        
+        #swapping the blank tile
+        temp = dupl_st[p]
+        dupl_st[p] = dupl_st[arr[i]]
+        dupl_st[arr[i]] = temp
+        
+        #counting the heuristic value for swaped puzzle state
+        tmp_rh = count(dupl_st)
+        
+        #if current swaped puzzle state has the less heuristic value than
+        #the before one, then store current state and current heuristic value
+        if tmp_rh < rh:
+            rh = tmp_rh
+            store_st = dupl_st.copy()
+      
+    #return the state with the minimum heuristic value along with the heuristic value
+    return store_st, rh
+  
+#Unsolved 8 Puzzle stored in list 'state'
+state = [1, 2, 3, 
+         0, 5, 6,
+         4, 7, 8]
 
-    def accept(self):
-        # Accepts the puzzle from the user
-        puz = []
-        for i in range(0, self.n):
-            temp = input().split(" ")
-            puz.append(temp)
-        return puz
+#variable that stores the heuristic value
+h = count(state)
 
-    def f(self, start, goal):
-        # Heuristic function to calculate Heuristic value f(x) = h(x) + g(x)
-        return self.h(start.data, goal) + start.level
+#Keeps track of search levels
+Level = 1
 
-    def h(self, start, goal):
-        # Calculates the difference between the given puzzles
-        temp = 0
-        for i in range(0, self.n):
-            for j in range(0, self.n):
-                if start[i][j] != goal[i][j] and start[i][j] != '_':
-                    temp += 1
-        return temp
-
-    def process(self):
-        # Accept Start and Goal Puzzle state
-        print("enter the start state matrix \n")
-        start = self.accept()
-        print("enter the goal state matrix \n")
-        goal = self.accept()
-        start = Node(start, 0, 0)
-        start.fval = self.f(start, goal)
-        # put the start node in the open list
-        self.open.append(start)
-        print("\n\n")
-        while True:
-            cur = self.open[0]
-            print("==================================================\n")
-            for i in cur.data:
-                for j in i:
-                    print(j, end=" ")
-                print("")
-            # if the difference between current and goal node is 0 we have reached the goal node
-            if (self.h(cur.data, goal) == 0):
-                break
-            for i in cur.generate_child():
-                i.fval = self.f(i, goal)
-                self.open.append(i)
-            self.closed.append(cur)
-            del self.open[0]
-            # sort the open list based on f value
-            self.open.sort(key=lambda x: x.fval, reverse=False)
+#initial printing of current state of 8 puzzle
+print("\n------ Level "+str(Level)+" ------")
+print_in_format(state)
+print("\nHeuristic Value(Misplaced) : "+str(h))
 
 
-puz = Puzzle(3)
-puz.process()
+#The main loop to find the solution and printing every search level
+while h>0:
+    #Store the position of the blank tile labeled '0' in the list 'state' 
+    pos = int(state.index(0))
+    
+    #Increasing level as one level of search is executing now
+    Level += 1
+    
+    #if blank tile is in index 0, then possible movement operation
+    if pos == 0:
+        #array of indexes where blank tile can be moved
+        arr = [1, 3]
+        state, h = move(arr, pos, state)
+        
+    #if blank tile is in index 1, then possible movement operation
+    elif pos == 1:
+        #array of indexes where blank tile can be moved
+        arr = [0, 2, 4]
+        state, h = move(arr, pos, state)
+        
+    #if blank tile is in index 2, then possible movement operation    
+    elif pos==2:
+        #array of indexes where blank tile can be moved
+        arr = [1, 5]
+        state, h = move(arr, pos, state)
+        
+    #if blank tile is in index 3, then possible movement operation
+    elif pos==3:
+        #array of indexes where blank tile can be moved
+        arr = [0, 4, 6]
+        state, h = move(arr, pos, state)
+        
+    #if blank tile is in index 4, then possible movement operation
+    elif pos==4:
+        #array of indexes where blank tile can be moved
+        arr = [1, 3, 5, 7]
+        state, h = move(arr, pos, state)
+        
+    #if blank tile is in index 5, then possible movement operation
+    elif pos==5:
+        #array of indexes where blank tile can be moved
+        arr = [2, 4, 8]
+        state, h = move(arr, pos, state)
+        
+    #if blank tile is in index 6, then possible movement operation
+    elif pos==6:
+        #array of indexes where blank tile can be moved
+        arr = [3, 7]
+        state, h = move(arr, pos, state)
+        
+    #if blank tile is in index 7, then possible movement operation
+    elif pos==7:
+        #array of indexes where blank tile can be moved
+        arr = [4, 6, 8]
+        state, h = move(arr, pos, state)
+        
+    #if blank tile is in index 8, then possible movement operation
+    elif pos==8:
+        #array of indexes where blank tile can be moved
+        arr = [5, 6]
+        state, h = move(arr, pos, state)
+    
+    #print current state and heuristic of that state in each search level
+    print("\n------ Level "+str(Level)+" ------")
+    print_in_format(state)
+    print("\nHeuristic Value(Misplaced) : "+str(h))
+        
+    
+
