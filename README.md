@@ -25,6 +25,8 @@ DAY 3 LAB :
 14. Write the python program to implement Apha & Beta pruning algorithm --- Uploaded || <br />
 15. Write the python program to implement Decision Tree --- Uploaded || <br />
 
+DAY 4 LAB : 
+
 17. Write the prolog program to implement family tree --- Uploaded ||<br/>
 18. Write a Prolog Program to suggest Dieting System based on Disease. --- Uploaded ||<br/>
 19. Write a Prolog program to implement Monkey Banana Problem --- Uploaded ||<br/>
